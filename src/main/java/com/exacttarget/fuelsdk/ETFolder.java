@@ -34,13 +34,13 @@
 
 package com.exacttarget.fuelsdk;
 
-import java.util.Date;
-
 import com.exacttarget.fuelsdk.annotations.ExternalName;
 import com.exacttarget.fuelsdk.annotations.InternalName;
 import com.exacttarget.fuelsdk.annotations.InternalProperty;
 import com.exacttarget.fuelsdk.annotations.SoapObject;
 import com.exacttarget.fuelsdk.internal.DataFolder;
+
+import java.util.Date;
 
 /**
  * An <code>ETFolder</code> object represents a folder
@@ -65,7 +65,7 @@ public class ETFolder extends ETSoapObject {
     @ExternalName("contentType")
     private String contentType = null;
     @ExternalName("parentFolder")
-    @InternalProperty("ParentFolder.CustomerKey")
+    @InternalProperty("ParentFolder.ID")
     private ETFolder parentFolder = null;
     @ExternalName("isActive")
     private Boolean isActive = null;
