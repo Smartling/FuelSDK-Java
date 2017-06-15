@@ -344,7 +344,7 @@ public abstract class ETSoapObject extends ETApiObject {
         }
 
         if (retrieveResponseMsg.getOverallStatus().equals("MoreDataAvailable")) {
-            response.setMoreResults(true);
+            response.addResults(retrieve(client, null, new ETFilter(), retrieveResponseMsg.getRequestID(), type).getResults());
         }
 
         return response;

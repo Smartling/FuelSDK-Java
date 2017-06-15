@@ -149,6 +149,10 @@ public class ETResponse<T extends ETApiObject> extends ETObject {
         individualResults.add(result);
     }
 
+    public void addResults(List<ETResult<T>> result) {
+        individualResults.addAll(result);
+    }
+
     public Boolean hasMoreResults() {
         return moreResults;
     }
