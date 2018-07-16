@@ -7,14 +7,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.exacttarget.fuelsdk.ETResult.Status.ERROR;
 import static com.exacttarget.fuelsdk.ETResult.Status.OK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 
 public class ETDataExtensionIntegrationTest {
+    private static final String DEFAULT_SOURCE_LOCALE = "en";
+    private static final String TARGET_LOCALE = "de-DE";
+    private static final String LANGUAGE_COLUMN_NAME = "User_Language__c";
 
     private ETClient client;
 
@@ -51,12 +56,12 @@ public class ETDataExtensionIntegrationTest {
         ETDataExtension dataExtension = new ETDataExtension();
         dataExtension.setName(name);
         dataExtension.setKey(key);
-        dataExtension.addColumn("ID", true);
+        dataExtension.addColumn(LANGUAGE_COLUMN_NAME, true);
 
         client.create(dataExtension);
 
         ETDataExtensionRow row = new ETDataExtensionRow();
-        row.setColumn("ID", "test ID");
+        row.setColumn(LANGUAGE_COLUMN_NAME, DEFAULT_SOURCE_LOCALE);
         dataExtension.insert(row);
 
         List<ETDataExtensionRow> rows = dataExtension.select().getObjects();
@@ -76,18 +81,18 @@ public class ETDataExtensionIntegrationTest {
         ETDataExtension dataExtension = new ETDataExtension();
         dataExtension.setName("Test name" + RandomStringUtils.random(5));
         dataExtension.setKey("Test_key" + RandomUtils.nextInt());
-        dataExtension.addColumn("ID", true);
+        dataExtension.addColumn(LANGUAGE_COLUMN_NAME, true);
 
         client.create(dataExtension);
 
         ETDataExtensionRow row = new ETDataExtensionRow();
-        row.setColumn("ID", "test-ID");
+        row.setColumn(LANGUAGE_COLUMN_NAME, TARGET_LOCALE);
         ETResponse<ETDataExtensionRow> response = dataExtension.insert(row);
         assertNotNull(response.getRequestId());
         assertEquals(OK, response.getStatus());
 
         row = new ETDataExtensionRow();
-        row.setColumn("ID", "test-id");
+        row.setColumn(LANGUAGE_COLUMN_NAME, TARGET_LOCALE.toLowerCase());
         response = dataExtension.insert(row);
         assertNotNull(response.getRequestId());
         assertEquals(ERROR, response.getStatus());
@@ -101,34 +106,64 @@ public class ETDataExtensionIntegrationTest {
         ETDataExtension dataExtension = new ETDataExtension();
         dataExtension.setName("Test name" + RandomStringUtils.random(5));
         dataExtension.setKey("Test_key" + RandomUtils.nextInt());
-        dataExtension.addColumn("ID", true);
+        dataExtension.addColumn(LANGUAGE_COLUMN_NAME, true);
         dataExtension.addColumn("test column");
 
         client.create(dataExtension);
 
-        ETDataExtensionRow row = new ETDataExtensionRow();
-        row.setColumn("ID", "id");
-        row.setColumn("test column", testColumnValue);
-        ETResponse<ETDataExtensionRow> response = dataExtension.insert(row);
+        ETDataExtensionRow insertedRow = new ETDataExtensionRow();
+        insertedRow.setColumn(LANGUAGE_COLUMN_NAME, DEFAULT_SOURCE_LOCALE);
+        insertedRow.setColumn("test column", testColumnValue);
+        ETResponse<ETDataExtensionRow> response = dataExtension.insert(insertedRow);
+        assertNotNull(response.getRequestId());
+        assertEquals(OK, response.getStatus());
+
+        insertedRow = new ETDataExtensionRow();
+        insertedRow.setColumn(LANGUAGE_COLUMN_NAME, TARGET_LOCALE);
+        insertedRow.setColumn("test column", testColumnValue);
+        response = dataExtension.insert(insertedRow);
         assertNotNull(response.getRequestId());
         assertEquals(OK, response.getStatus());
 
         List<ETDataExtensionRow> rows = dataExtension.select().getObjects();
         assertNotNull(rows);
-        assertEquals(1, rows.size());
-        assertEquals(testColumnValue, rows.get(0).getColumn("test column"));
+        assertEquals(2, rows.size());
+        Optional<ETDataExtensionRow> foundRow = getDataExtensionRowByLanguage(rows, TARGET_LOCALE);
+        assertTrue(foundRow.isPresent());
+        assertEquals(testColumnValue, foundRow.get().getColumn("test column"));
 
-        row = new ETDataExtensionRow();
-        row.setColumn("ID", "id");
-        row.setColumn("test column", updatedTestColumnValue);
+        // Do translation scenario
+        final ETDataExtensionRow row = foundRow.get();
+        ETDataExtensionRow updatedRow = new ETDataExtensionRow();
+        // Copy all columns except primary key for serialization to Smartling
+        row.getColumnNames().stream().filter(cName -> !"ID".equalsIgnoreCase(cName)).forEach(cName -> updatedRow.setColumn(cName, row.getColumn(cName)));
 
-        response = dataExtension.update(row);
+        // Update with translated value
+        updatedRow.setColumn("test column", updatedTestColumnValue);
+
+        // Found existed row for given locale
+        rows = dataExtension.select().getObjects();
+        foundRow = getDataExtensionRowByLanguage(rows, TARGET_LOCALE);
+        assertTrue(foundRow.isPresent());
+        final ETDataExtensionRow originalRow = foundRow.get();
+        // Copy translated columns
+        updatedRow.getColumnNames().forEach(cName -> originalRow.setColumn(cName, updatedRow.getColumn(cName)));
+
+        // Update row in sfmc
+        response = dataExtension.update(originalRow);
         assertNotNull(response.getRequestId());
         assertEquals(OK, response.getStatus());
 
         rows = dataExtension.select().getObjects();
         assertNotNull(rows);
-        assertEquals(1, rows.size());
-        assertEquals(updatedTestColumnValue, rows.get(0).getColumn("test column"));
+        assertEquals(2, rows.size());
+        foundRow = getDataExtensionRowByLanguage(rows, TARGET_LOCALE);
+        assertTrue(foundRow.isPresent());
+        assertEquals(updatedTestColumnValue, foundRow.get().getColumn("test column"));
+    }
+
+    private static Optional<ETDataExtensionRow> getDataExtensionRowByLanguage(List<ETDataExtensionRow> rows, String language)
+    {
+        return rows.stream().filter(row -> language.equals(row.getColumn(LANGUAGE_COLUMN_NAME))).findFirst();
     }
 }
