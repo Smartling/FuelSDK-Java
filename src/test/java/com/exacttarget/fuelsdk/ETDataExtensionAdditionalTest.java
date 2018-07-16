@@ -16,22 +16,19 @@ import static org.junit.Assume.assumeNotNull;
 
 public class ETDataExtensionAdditionalTest {
 
-    private final static String CLIENT_ID_PROPERTY = "sfmc.username";
-    private final static String CLIENT_SECRET_PROPERTY = "sfmc.password";
-
     private ETClient client;
 
     @Before
     public void setup() throws Exception {
-        String clientId = System.getProperty(CLIENT_ID_PROPERTY);
-        String clientSecret = System.getProperty(CLIENT_SECRET_PROPERTY);
+        String clientId = System.getProperty("sfmc.username");
+        String clientSecret = System.getProperty("sfmc.password");
 
         assumeNotNull("Username is not specified", clientId);
         assumeNotNull("Password is not specified", clientSecret);
 
         ETConfiguration configuration = new ETConfiguration();
-        configuration.set(CLIENT_ID_PROPERTY, clientId);
-        configuration.set(CLIENT_SECRET_PROPERTY, clientSecret);
+        configuration.set("clientId", clientId);
+        configuration.set("clientSecret", clientSecret);
 
         // instantiate ETClient object
         client = new ETClient(configuration);
