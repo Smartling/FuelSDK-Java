@@ -12,11 +12,12 @@ import static com.exacttarget.fuelsdk.ETResult.Status.ERROR;
 import static com.exacttarget.fuelsdk.ETResult.Status.OK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeNotNull;
 
 public class ETDataExtensionAdditionalTest {
 
-    private final static String CLIENT_ID_PROPERTY = "clientId";
-    private final static String CLIENT_SECRET_PROPERTY = "clientSecret";
+    private final static String CLIENT_ID_PROPERTY = "sfmc.username";
+    private final static String CLIENT_SECRET_PROPERTY = "sfmc.password";
 
     private ETClient client;
 
@@ -24,6 +25,9 @@ public class ETDataExtensionAdditionalTest {
     public void setup() throws Exception {
         String clientId = System.getProperty(CLIENT_ID_PROPERTY);
         String clientSecret = System.getProperty(CLIENT_SECRET_PROPERTY);
+
+        assumeNotNull("Username is not specified", clientId);
+        assumeNotNull("Password is not specified", clientSecret);
 
         ETConfiguration configuration = new ETConfiguration();
         configuration.set(CLIENT_ID_PROPERTY, clientId);
