@@ -243,6 +243,56 @@ public class ETDataExtensionIntegrationTest {
         assertEquals(updatedDate, rows.get(0).getColumn("test date"));
     }
 
+    @Test
+    public void shouldNotInsertAndUpdateTooLongValue() throws Exception {
+        ETDataExtension dataExtension = new ETDataExtension();
+        dataExtension.setName("Test name" + RandomStringUtils.random(5));
+        dataExtension.setKey("Test_key" + RandomUtils.nextInt());
+        dataExtension.addColumn(LANGUAGE_COLUMN_NAME, true);
+        dataExtension.addColumn("test column", ETDataExtensionColumn.Type.TEXT, 5, null, null, false, false, null);
+
+        client.create(dataExtension);
+
+        // insert row with too long column value
+        ETDataExtensionRow insertedRow = new ETDataExtensionRow();
+        insertedRow.setColumn(LANGUAGE_COLUMN_NAME, DEFAULT_SOURCE_LOCALE);
+        insertedRow.setColumn("test column", RandomStringUtils.random(6));
+        ETResponse<ETDataExtensionRow> response = dataExtension.insert(insertedRow);
+        assertNotNull(response.getRequestId());
+        assertEquals(ERROR, response.getStatus());
+        assertTrue(StringUtils.isNotEmpty(response.getResultErrorMessage()));
+
+        List<ETDataExtensionRow> rows = dataExtension.select().getObjects();
+        assertNotNull(rows);
+        assertEquals(0, rows.size());
+
+        insertedRow = new ETDataExtensionRow();
+        insertedRow.setColumn(LANGUAGE_COLUMN_NAME, TARGET_LOCALE);
+        insertedRow.setColumn("test column", RandomStringUtils.random(5));
+        response = dataExtension.insert(insertedRow);
+        assertNotNull(response.getRequestId());
+        assertEquals(OK, response.getStatus());
+        assertTrue(StringUtils.isEmpty(response.getResultErrorMessage()));
+
+        rows = dataExtension.select().getObjects();
+        assertNotNull(rows);
+        assertEquals(1, rows.size());
+
+        // update row with too long column value
+        ETDataExtensionRow updatedRow = rows.get(0);
+        String oldValue = updatedRow.getColumn("test column");
+        updatedRow.setColumn("test column", RandomStringUtils.random(6));
+        response = dataExtension.update(updatedRow);
+        assertNotNull(response.getRequestId());
+        assertEquals(ERROR, response.getStatus());
+        assertTrue(StringUtils.isNotEmpty(response.getResultErrorMessage()));
+
+        rows = dataExtension.select().getObjects();
+        assertNotNull(rows);
+        assertEquals(1, rows.size());
+        assertEquals(oldValue, rows.get(0).getColumn("test column"));
+    }
+
     private static Optional<ETDataExtensionRow> getDataExtensionRowByLanguage(List<ETDataExtensionRow> rows, String language)
     {
         return rows.stream().filter(row -> language.equals(row.getColumn(LANGUAGE_COLUMN_NAME))).findFirst();
