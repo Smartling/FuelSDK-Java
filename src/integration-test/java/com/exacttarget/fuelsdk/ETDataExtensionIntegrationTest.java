@@ -1,6 +1,7 @@
 package com.exacttarget.fuelsdk;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -23,7 +24,7 @@ public class ETDataExtensionIntegrationTest {
     private static final String TARGET_LOCALE = "de-DE";
     private static final String LANGUAGE_COLUMN_NAME = "User_Language__c";
 
-    private SimpleDateFormat formatter = new SimpleDateFormat("M/dd/yyyy hh:mm:ss a");
+    private SimpleDateFormat formatter = new SimpleDateFormat("M/dd/yyyy h:mm:ss a");
 
     private ETClient client;
 
@@ -91,15 +92,18 @@ public class ETDataExtensionIntegrationTest {
 
         ETDataExtensionRow row = new ETDataExtensionRow();
         row.setColumn(LANGUAGE_COLUMN_NAME, TARGET_LOCALE);
+
         ETResponse<ETDataExtensionRow> response = dataExtension.insert(row);
         assertNotNull(response.getRequestId());
         assertEquals(OK, response.getStatus());
 
         row = new ETDataExtensionRow();
         row.setColumn(LANGUAGE_COLUMN_NAME, TARGET_LOCALE.toLowerCase());
+
         response = dataExtension.insert(row);
         assertNotNull(response.getRequestId());
         assertEquals(ERROR, response.getStatus());
+        assertTrue(StringUtils.isNotEmpty(response.getResultErrorMessage()));
     }
 
     @Test
@@ -121,6 +125,7 @@ public class ETDataExtensionIntegrationTest {
         ETResponse<ETDataExtensionRow> response = dataExtension.insert(insertedRow);
         assertNotNull(response.getRequestId());
         assertEquals(OK, response.getStatus());
+        assertTrue(StringUtils.isEmpty(response.getResultErrorMessage()));
 
         insertedRow = new ETDataExtensionRow();
         insertedRow.setColumn(LANGUAGE_COLUMN_NAME, TARGET_LOCALE);
@@ -128,6 +133,7 @@ public class ETDataExtensionIntegrationTest {
         response = dataExtension.insert(insertedRow);
         assertNotNull(response.getRequestId());
         assertEquals(OK, response.getStatus());
+        assertTrue(StringUtils.isEmpty(response.getResultErrorMessage()));
 
         List<ETDataExtensionRow> rows = dataExtension.select().getObjects();
         assertNotNull(rows);
@@ -157,6 +163,7 @@ public class ETDataExtensionIntegrationTest {
         response = dataExtension.update(originalRow);
         assertNotNull(response.getRequestId());
         assertEquals(OK, response.getStatus());
+        assertTrue(StringUtils.isEmpty(response.getResultErrorMessage()));
 
         rows = dataExtension.select().getObjects();
         assertNotNull(rows);
@@ -189,6 +196,7 @@ public class ETDataExtensionIntegrationTest {
         ETResponse<ETDataExtensionRow> response = dataExtension.insert(insertedRow);
         assertNotNull(response.getRequestId());
         assertEquals(OK, response.getStatus());
+        assertTrue(StringUtils.isEmpty(response.getResultErrorMessage()));
 
         List<ETDataExtensionRow> rows = dataExtension.select().getObjects();
         assertNotNull(rows);
@@ -202,6 +210,7 @@ public class ETDataExtensionIntegrationTest {
         response = dataExtension.insert(insertedRow);
         assertNotNull(response.getRequestId());
         assertEquals(ERROR, response.getStatus());
+        assertTrue(StringUtils.isNotEmpty(response.getResultErrorMessage()));
 
         rows = dataExtension.select().getObjects();
         assertNotNull(rows);
@@ -213,6 +222,7 @@ public class ETDataExtensionIntegrationTest {
         response = dataExtension.update(updatedRow);
         assertNotNull(response.getRequestId());
         assertEquals(OK, response.getStatus());
+        assertTrue(StringUtils.isEmpty(response.getResultErrorMessage()));
 
         rows = dataExtension.select().getObjects();
         assertNotNull(rows);
@@ -225,6 +235,7 @@ public class ETDataExtensionIntegrationTest {
         response = dataExtension.update(updatedRow);
         assertNotNull(response.getRequestId());
         assertEquals(ERROR, response.getStatus());
+        assertTrue(StringUtils.isNotEmpty(response.getResultErrorMessage()));
 
         rows = dataExtension.select().getObjects();
         assertNotNull(rows);

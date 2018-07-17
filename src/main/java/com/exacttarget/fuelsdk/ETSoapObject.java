@@ -47,9 +47,11 @@ import com.exacttarget.fuelsdk.internal.CreateRequest;
 import com.exacttarget.fuelsdk.internal.CreateResponse;
 import com.exacttarget.fuelsdk.internal.CreateResult;
 import com.exacttarget.fuelsdk.internal.DataExtension;
+import com.exacttarget.fuelsdk.internal.DataExtensionCreateResult;
 import com.exacttarget.fuelsdk.internal.DataExtensionField;
 import com.exacttarget.fuelsdk.internal.DataExtensionFieldType;
 import com.exacttarget.fuelsdk.internal.DataExtensionObject;
+import com.exacttarget.fuelsdk.internal.DataExtensionUpdateResult;
 import com.exacttarget.fuelsdk.internal.DataFolder;
 import com.exacttarget.fuelsdk.internal.DeleteOptions;
 import com.exacttarget.fuelsdk.internal.DeleteRequest;
@@ -82,6 +84,7 @@ import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -456,6 +459,7 @@ public abstract class ETSoapObject extends ETApiObject {
             result.setResponseCode(createResult.getStatusCode());
             result.setResponseMessage(createResult.getStatusMessage());
             result.setErrorCode(createResult.getErrorCode());
+            result.setErrorMessage(buildErrorMessage(createResult));
             if (result.getResponseCode().equals("OK")) { // XXX?
                 result.setObject(externalObject);
             }
@@ -463,6 +467,22 @@ public abstract class ETSoapObject extends ETApiObject {
         }
 
         return response;
+    }
+
+    private static String buildErrorMessage(CreateResult createResult) {
+        StringBuilder errorMessage = new StringBuilder();
+
+        if (createResult instanceof DataExtensionCreateResult) {
+            DataExtensionCreateResult dataExtensionCreateResult = ((DataExtensionCreateResult) createResult);
+            errorMessage
+                    .append(StringUtils.defaultString(dataExtensionCreateResult.getErrorMessage(), StringUtils.EMPTY))
+                    .append(" ")
+                    .append(dataExtensionCreateResult.getKeyErrors() != null ? dataExtensionCreateResult.getKeyErrors().toString() : StringUtils.EMPTY)
+                    .append(" ")
+                    .append(dataExtensionCreateResult.getValueErrors() != null ? dataExtensionCreateResult.getValueErrors().toString() : StringUtils.EMPTY);
+        }
+
+        return StringUtils.trim(errorMessage.toString());
     }
 
     public static <T extends ETSoapObject> ETResponse<T> update(ETClient client,
@@ -570,6 +590,7 @@ public abstract class ETSoapObject extends ETApiObject {
             result.setResponseCode(updateResult.getStatusCode());
             result.setResponseMessage(updateResult.getStatusMessage());
             result.setErrorCode(updateResult.getErrorCode());
+            result.setErrorMessage(buildErrorMessage(updateResult));
             if (result.getResponseCode().equals("OK")) { // XXX?
                 result.setObject(externalObject);
             }
@@ -577,6 +598,22 @@ public abstract class ETSoapObject extends ETApiObject {
         }
 
         return response;
+    }
+
+    private static String buildErrorMessage(UpdateResult updateResult) {
+        StringBuilder errorMessage = new StringBuilder();
+
+        if (updateResult instanceof DataExtensionUpdateResult) {
+            DataExtensionUpdateResult dataExtensionUpdateResult = ((DataExtensionUpdateResult) updateResult);
+            errorMessage
+                    .append(StringUtils.defaultString(dataExtensionUpdateResult.getErrorMessage(), StringUtils.EMPTY))
+                    .append(" ")
+                    .append(dataExtensionUpdateResult.getKeyErrors() != null ? dataExtensionUpdateResult.getKeyErrors().toString() : StringUtils.EMPTY)
+                    .append(" ")
+                    .append(dataExtensionUpdateResult.getValueErrors() != null ? dataExtensionUpdateResult.getValueErrors().toString() : StringUtils.EMPTY);
+        }
+
+        return StringUtils.trim(errorMessage.toString());
     }
 
     public static <T extends ETSoapObject> ETResponse<T> delete(ETClient client,

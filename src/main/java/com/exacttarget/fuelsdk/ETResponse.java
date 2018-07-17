@@ -112,6 +112,13 @@ public class ETResponse<T extends ETApiObject> extends ETObject {
         return null;
     }
 
+    public String getResultErrorMessage() {
+        if (individualResults != null && !individualResults.isEmpty() && individualResults.get(0) != null) {
+            return individualResults.get(0).getErrorMessage();
+        }
+        return null;
+    }
+
     public void setResponseMessage(String responseMessage) {
         if (batchResult == null) {
             batchResult = new ETResult<T>();
