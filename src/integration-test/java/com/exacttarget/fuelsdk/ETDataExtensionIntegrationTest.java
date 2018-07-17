@@ -6,6 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +22,8 @@ public class ETDataExtensionIntegrationTest {
     private static final String DEFAULT_SOURCE_LOCALE = "en";
     private static final String TARGET_LOCALE = "de-DE";
     private static final String LANGUAGE_COLUMN_NAME = "User_Language__c";
+
+    private SimpleDateFormat formatter = new SimpleDateFormat("M/dd/yyyy hh:mm:ss a");
 
     private ETClient client;
 
@@ -160,6 +164,72 @@ public class ETDataExtensionIntegrationTest {
         foundRow = getDataExtensionRowByLanguage(rows, TARGET_LOCALE);
         assertTrue(foundRow.isPresent());
         assertEquals(updatedTestColumnValue, foundRow.get().getColumn("test column"));
+    }
+
+    @Test
+    public void shouldNotInsertAndUpdateInvalidDate() throws Exception {
+        ETDataExtension dataExtension = new ETDataExtension();
+        dataExtension.setName("Test name" + RandomStringUtils.random(5));
+        dataExtension.setKey("Test_key" + RandomUtils.nextInt());
+        dataExtension.addColumn(LANGUAGE_COLUMN_NAME, true);
+        dataExtension.addColumn("test date", ETDataExtensionColumn.Type.DATE);
+
+        client.create(dataExtension);
+
+        String date = formatter.format(Calendar.getInstance().getTime());
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, 1);
+        String updatedDate = formatter.format(calendar.getTime());
+
+        // insert date column in valid format
+        ETDataExtensionRow insertedRow = new ETDataExtensionRow();
+        insertedRow.setColumn(LANGUAGE_COLUMN_NAME, DEFAULT_SOURCE_LOCALE);
+        insertedRow.setColumn("test date", date);
+        ETResponse<ETDataExtensionRow> response = dataExtension.insert(insertedRow);
+        assertNotNull(response.getRequestId());
+        assertEquals(OK, response.getStatus());
+
+        List<ETDataExtensionRow> rows = dataExtension.select().getObjects();
+        assertNotNull(rows);
+        assertEquals(1, rows.size());
+        assertEquals(date, rows.get(0).getColumn("test date"));
+
+        // insert date column in invalid format
+        insertedRow = new ETDataExtensionRow();
+        insertedRow.setColumn(LANGUAGE_COLUMN_NAME, TARGET_LOCALE);
+        insertedRow.setColumn("test date", RandomStringUtils.random(8));
+        response = dataExtension.insert(insertedRow);
+        assertNotNull(response.getRequestId());
+        assertEquals(ERROR, response.getStatus());
+
+        rows = dataExtension.select().getObjects();
+        assertNotNull(rows);
+        assertEquals(1, rows.size());
+
+        // update date column in valid format
+        ETDataExtensionRow updatedRow = rows.get(0);
+        updatedRow.setColumn("test date", updatedDate);
+        response = dataExtension.update(updatedRow);
+        assertNotNull(response.getRequestId());
+        assertEquals(OK, response.getStatus());
+
+        rows = dataExtension.select().getObjects();
+        assertNotNull(rows);
+        assertEquals(1, rows.size());
+        assertEquals(updatedDate, rows.get(0).getColumn("test date"));
+
+        // update date column in invalid format
+        updatedRow = rows.get(0);
+        updatedRow.setColumn("test date", RandomStringUtils.random(8));
+        response = dataExtension.update(updatedRow);
+        assertNotNull(response.getRequestId());
+        assertEquals(ERROR, response.getStatus());
+
+        rows = dataExtension.select().getObjects();
+        assertNotNull(rows);
+        assertEquals(1, rows.size());
+        assertEquals(updatedDate, rows.get(0).getColumn("test date"));
     }
 
     private static Optional<ETDataExtensionRow> getDataExtensionRowByLanguage(List<ETDataExtensionRow> rows, String language)
