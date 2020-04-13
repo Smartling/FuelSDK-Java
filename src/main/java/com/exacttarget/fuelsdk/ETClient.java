@@ -67,9 +67,9 @@ public class ETClient {
     private static final String DEFAULT_AUTH_ENDPOINT =
             "https://auth.exacttargetapis.com";
     private static final String PATH_REQUESTTOKEN =
-            "/v1/requestToken";
+            "/v2/token";
     private static final String PATH_REQUESTTOKEN_LEGACY =
-            "/v1/requestToken?legacy=1";
+            "/v1/requestToken";
     private static final String PATH_ENDPOINTS_SOAP =
             "/platform/v1/endpoints/soap";
 
@@ -265,18 +265,23 @@ public class ETClient {
         // we have one:token
         //
 
+        boolean isLegacyTokenRequest = configuration.isTrue("requestLegacyToken");
+
+        String clientIdProperty = isLegacyTokenRequest ? "clientId" : "client_id";
+        String clientSecretProperty = isLegacyTokenRequest ? "clientSecret" : "client_secret";
+        String accessTokenProperty = isLegacyTokenRequest ? "accessToken" : "access_token";
+        String expiresInProperty = isLegacyTokenRequest ? "expiresIn" : "expires_in";
+        String pathRequest = isLegacyTokenRequest ? PATH_REQUESTTOKEN_LEGACY : PATH_REQUESTTOKEN;
+
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("clientId", clientId);
-        jsonObject.addProperty("clientSecret", clientSecret);
+        jsonObject.addProperty(clientIdProperty, clientId);
+        jsonObject.addProperty(clientSecretProperty, clientSecret);
+        if (!isLegacyTokenRequest) {
+            jsonObject.addProperty("grant_type", "client_credentials");
+        }
 
         String requestPayload = gson.toJson(jsonObject);
-
-        ETRestConnection.Response response = null;
-        if (configuration.isTrue("requestLegacyToken")) {
-            response = authConnection.post(PATH_REQUESTTOKEN_LEGACY, requestPayload);
-        } else {
-            response = authConnection.post(PATH_REQUESTTOKEN, requestPayload);
-        }
+        ETRestConnection.Response response = authConnection.post(pathRequest, requestPayload);
 
         if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
             throw new ETSdkException("error obtaining access token "
@@ -297,9 +302,9 @@ public class ETClient {
         JsonParser jsonParser = new JsonParser();
         jsonObject = jsonParser.parse(responsePayload).getAsJsonObject();
         logger.debug("received token:");
-        this.accessToken = jsonObject.get("accessToken").getAsString();
+        this.accessToken = jsonObject.get(accessTokenProperty).getAsString();
         logger.debug("  accessToken: " + this.accessToken);
-        this.expiresIn = jsonObject.get("expiresIn").getAsInt();
+        this.expiresIn = jsonObject.get(expiresInProperty).getAsInt();
         logger.debug("  expiresIn: " + this.expiresIn);
         JsonElement jsonElement = jsonObject.get("legacyToken");
         if (jsonElement != null) {
