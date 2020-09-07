@@ -100,18 +100,29 @@ public class ETClient {
 
     private long tokenExpirationTime = 0;
 
+    /**
+    * Class constructor, Initializes a new instance of the class.
+    */
     public ETClient()
         throws ETSdkException
     {
         this(DEFAULT_PROPERTIES_FILE_NAME);
     }
 
+    /**
+    * Class constructor, Initializes a new instance of the class.
+    * @param   file  The configuration file which contains the clientId and clientSecret
+    */
     public ETClient(String file)
         throws ETSdkException
     {
         this(new ETConfiguration(file));
     }
 
+    /**
+    * Class constructor, Initializes a new instance of the class.
+    * @param configuration      The ETConfiguration object which contains the clientId and clientSecret
+    */
     public ETClient(ETConfiguration configuration)
         throws ETSdkException
     {
@@ -195,34 +206,66 @@ public class ETClient {
         }
     }
 
+    /**
+     *
+     * @return The client ID
+     */
     public String getClientId() {
         return clientId;
     }
 
+    /**
+     *
+     * @return The access token
+     */
     public String getAccessToken() {
         return accessToken;
     }
 
+    /**
+     *
+     * @return The LegacyToken
+     */
     public String getLegacyToken() {
         return accessToken;
     }
 
+    /**
+     *
+     * @return true if auto hydrate objects, false otherwise
+     */
     public Boolean autoHydrateObjects() {
         return autoHydrateObjects;
     }
 
+    /**
+     *
+     * @return      The ETConfiguration
+     */
     public ETConfiguration getConfiguration() {
         return configuration;
     }
 
+    /**
+     *
+     * @return      The Gson
+     */
     public Gson getGson() {
         return gson;
     }
 
+    /**
+     *
+     * @return      The ETRestConnection
+     */
     public ETRestConnection getRestConnection() {
         return restConnection;
     }
 
+    /**
+     *
+     * @return      The ETSoapConnection
+     */
     public ETSoapConnection getSoapConnection() {
         return soapConnection;
     }
@@ -230,6 +273,7 @@ public class ETClient {
     /**
      * @deprecated
      * Use getRestConnection().
+     * @return      The ETRestConnection
      */
     @Deprecated
     public ETRestConnection getRESTConnection() {
@@ -239,12 +283,16 @@ public class ETClient {
     /**
      * @deprecated
      * Use getSoapConnection().
+     * @return      The ETSoapConnection
      */
     @Deprecated
     public ETSoapConnection getSOAPConnection() {
         return getSoapConnection();
     }
 
+    /**
+     * @return                      The request token
+     */
     public synchronized String requestToken()
         throws ETSdkException
     {
@@ -344,6 +392,13 @@ public class ETClient {
         return object;
     }
 
+    /**
+     *
+     * @param <T>           The type which extends from ETApiObject
+     * @param type          The class type to retrieve
+     * @param filter        The ETFilter object to be used to retrieve objects
+     * @return              The ETResponse of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> ETResponse<T> retrieve(Class<T> type,
                                                           ETFilter filter)
         throws ETSdkException
@@ -351,6 +406,13 @@ public class ETClient {
         return retrieve(type, null, null, filter);
     }
 
+    /**
+     *
+     * @param <T>           The type which extends from ETApiObject
+     * @param type          The class type to retrieve
+     * @param filter        The filter to be used to retrieve as variable arguments of String
+     * @return              The ETResponse of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> ETResponse<T> retrieve(Class<T> type,
                                                           String... filter)
         throws ETSdkException
@@ -358,6 +420,15 @@ public class ETClient {
         return retrieve(type, null, null, ETFilter.parse(filter));
     }
 
+    /**
+     *
+     * @param <T>           The type which extends from ETApiObject
+     * @param type          The class type to retrieve
+     * @param page          The page number
+     * @param pageSize      The page size
+     * @param filter        The ETFilter object to be used to retrieve objects
+     * @return              The ETResponse of type T which extends from ETApiObject
+     */
     @SuppressWarnings("unchecked")
     public <T extends ETApiObject> ETResponse<T> retrieve(Class<T> type,
                                                           Integer page,
@@ -406,6 +477,15 @@ public class ETClient {
         return response;
     }
 
+    /**
+     *
+     * @param <T>           The type which extends from ETApiObject
+     * @param type          The class type to retrieve
+     * @param page          The page number
+     * @param pageSize      The page size
+     * @param filter        The filter to be used to retrieve as variable arguments of String
+     * @return              The ETResponse of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> ETResponse<T> retrieve(Class<T> type,
                                                           Integer page,
                                                           Integer pageSize,
@@ -476,6 +556,13 @@ public class ETClient {
         return retrieve(type, page, pageSize, f);
     }
 
+    /**
+     *
+     * @param <T>           The type which extends from ETApiObject
+     * @param type          The class type to retrieve
+     * @param filter        The ETFilter object to be used to retrieve objects
+     * @return              The type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> T retrieveObject(Class<T> type,
                                                     ETFilter filter)
         throws ETSdkException
@@ -487,6 +574,13 @@ public class ETClient {
         return response.getObject();
     }
 
+    /**
+     *
+     * @param <T>           The type which extends from ETApiObject
+     * @param type          The class type to retrieve
+     * @param filter        The filter to be used to retrieve objects as variable arguments of String
+     * @return              The type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> T retrieveObject(Class<T> type,
                                                     String... filter)
         throws ETSdkException
@@ -515,6 +609,13 @@ public class ETClient {
         return response.getObject();
     }
 
+    /**
+     *
+     * @param <T>           The type which extends from ETApiObject
+     * @param type          The class type to retrieve
+     * @param filter        The ETFilter object to be used to retrieve objects
+     * @return              The List of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> List<T> retrieveObjects(Class<T> type,
                                                            ETFilter filter)
         throws ETSdkException
@@ -526,6 +627,13 @@ public class ETClient {
         return response.getObjects();
     }
 
+    /**
+     *
+     * @param <T>           The type which extends from ETApiObject
+     * @param type          The class type to retrieve
+     * @param filter        The filter to be used to retrieve objects as variable arguments of String
+     * @return              The List of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> List<T> retrieveObjects(Class<T> type,
                                                            String... filter)
         throws ETSdkException
@@ -537,6 +645,15 @@ public class ETClient {
         return response.getObjects();
     }
 
+    /**
+     *
+     * @param <T>           The type which extends from ETApiObject
+     * @param type          The class type to retrieve
+     * @param page          The page number
+     * @param pageSize      The page size
+     * @param filter        The ETFilter object to be used to retrieve objects
+     * @return              The List of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> List<T> retrieveObjects(Class<T> type,
                                                            Integer page,
                                                            Integer pageSize,
@@ -550,6 +667,15 @@ public class ETClient {
         return response.getObjects();
     }
 
+    /**
+     *
+     * @param <T>           The type which extends from ETApiObject
+     * @param type          The class type to retrieve
+     * @param page          The page number
+     * @param pageSize      The page size
+     * @param filter        The filter to be used to retrieve objects as variable arguments of String
+     * @return              The List of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> List<T> retrieveObjects(Class<T> type,
                                                            Integer page,
                                                            Integer pageSize,
@@ -618,43 +744,80 @@ public class ETClient {
         return response.getObjects();
     }
 
+    /**
+     * @param <T>                   The type which extends from ETApiObject
+     * @param objects               The objects to be created as variable arguments of type T
+     * @return                      The ETResponse object of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> ETResponse<T> create(T... objects)
         throws ETSdkException
     {
         return createUpdateDelete("create", Arrays.asList(objects));
     }
 
+    /**
+     * @param <T>                   The type which extends from ETApiObject
+     * @param objects               The List of objects of type T to be created
+     * @return                      The ETResponse object of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> ETResponse<T> create(List<T> objects)
         throws ETSdkException
     {
         return createUpdateDelete("create", objects);
     }
 
+    /**
+     * @param <T>                   The type which extends from ETApiObject
+     * @param objects               The objects to be updated as variable arguments of type T
+     * @return                      The ETResponse object of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> ETResponse<T> update(T... objects)
         throws ETSdkException
     {
         return createUpdateDelete("update", Arrays.asList(objects));
     }
 
+    /**
+     * @param <T>                   The type which extends from ETApiObject
+     * @param objects               The List of objects of type T to be updated
+     * @return                      The ETResponse object of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> ETResponse<T> update(List<T> objects)
         throws ETSdkException
     {
         return createUpdateDelete("update", objects);
     }
 
+    /**
+     * @param <T>                   The type which extends from ETApiObject
+     * @param objects               The objects to be deleted as variable arguments of type T
+     * @return                      The ETResponse object of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> ETResponse<T> delete(T... objects)
         throws ETSdkException
     {
         return createUpdateDelete("delete", Arrays.asList(objects));
     }
 
+    /**
+     * @param <T>                   The type which extends from ETApiObject
+     * @param objects               The List of objects of type T to be deleted
+     * @return                      The ETResponse object of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> ETResponse<T> delete(List<T> objects)
         throws ETSdkException
     {
         return createUpdateDelete("delete", objects);
     }
 
-    public <T extends ETApiObject> ETResponse<T> update(Class<T> type,
+    /**
+     * @param <T>                   The type which extends from ETApiObject
+     * @param type                  The class type to delete
+     * @param filter                The filter to be used to do filter
+     * @param values                The values as variable arguments of String which is used to do the update
+     * @return                      The ETResponse object of type T which extends from ETApiObject
+     */
+     public <T extends ETApiObject> ETResponse<T> update(Class<T> type,
                                                         String filter,
                                                         String... values)
         throws ETSdkException
@@ -691,6 +854,12 @@ public class ETClient {
         return update(objects);
     }
 
+    /**
+     * @param <T>                   The type which extends from ETApiObject
+     * @param type                  The class type to delete
+     * @param filter                The ETFilter object to be used for filter
+     * @return                      The ETResponse object of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> ETResponse<T> delete(Class<T> type,
                                                         ETFilter filter)
         throws ETSdkException
@@ -721,6 +890,12 @@ public class ETClient {
         return delete(response.getObjects());
     }
 
+    /**
+     * @param <T>                   The type which extends from ETApiObject
+     * @param type                  The class type to delete
+     * @param filter                The filter to be used to do filter
+     * @return                      The ETResponse object of type T which extends from ETApiObject
+     */
     public <T extends ETApiObject> ETResponse<T> delete(Class<T> type,
                                                         String filter)
         throws ETSdkException

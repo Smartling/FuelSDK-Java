@@ -15,7 +15,6 @@ import com.exacttarget.fuelsdk.internal.SubscriberList;
  * 
  * This class takes care of the association between subscriber and the subscription list. 
  * You need to use this class to modify users in a specific list
- * @author amagar
  *
  */
 @SoapObject(internalType = SubscriberList.class)

@@ -75,6 +75,12 @@ public class ETSoapConnection {
     private SOAPFactory soapFactory = null;
     private SOAPElement accessTokenElement = null;
 
+    /** 
+    * Class constructor, Initializes a new instance of the class.
+     * @param client    The ETClient object
+     * @param endpoint  The endpoint URL
+     * @throws com.exacttarget.fuelsdk.ETSdkException
+    */
     public ETSoapConnection(ETClient client, String endpoint)
         throws ETSdkException
     {
@@ -124,6 +130,7 @@ public class ETSoapConnection {
                 conduit.setTlsClientParameters(tlsClientParameters);
             }
             soapClient.getRequestContext().put(Message.ENCODING, "UTF-8");
+            
             LoggingInInterceptor loggingInInterceptor =
                     new LoggingInInterceptor();
             loggingInInterceptor.setPrettyLogging(true);
@@ -137,6 +144,14 @@ public class ETSoapConnection {
         }
     }
 
+    /** 
+    * Class constructor, Initializes a new instance of the class.
+     * @param client        The ETClient object
+     * @param endpoint      The endpoint URL
+     * @param username      The username
+     * @param password      The password
+     * @throws com.exacttarget.fuelsdk.ETSdkException
+    */
     public ETSoapConnection(ETClient client, String endpoint,
                             String username,
                             String password)
@@ -173,6 +188,13 @@ public class ETSoapConnection {
         }
     }
 
+    /** 
+    * Class constructor, Initializes a new instance of the class.
+     * @param client        The ETClient object
+     * @param endpoint      The endpoint URL
+     * @param accessToken   The access token
+     * @throws com.exacttarget.fuelsdk.ETSdkException
+    */
     public ETSoapConnection(ETClient client, String endpoint, String accessToken)
         throws ETSdkException
     {
@@ -188,13 +210,16 @@ public class ETSoapConnection {
             }
 
             headers.add(new Header(new QName(null, "fueloauth"), accessTokenElement));
-
+            
             soapClient.getRequestContext().put(Header.HEADER_LIST, headers);
         } catch (SOAPException ex) {
             throw new ETSdkException("could not initialize SOAP proxy", ex);
         }
     }
 
+    /**
+     * @return  The Soap object
+     */
     public Soap getSoap() {
         return soap;
     }
@@ -203,6 +228,10 @@ public class ETSoapConnection {
         return endpoint;
     }
 
+    /**
+     * @param accessToken       The access token
+     * @throws ETSdkException 
+     */
     public void setAccessToken(String accessToken)
         throws ETSdkException
     {
