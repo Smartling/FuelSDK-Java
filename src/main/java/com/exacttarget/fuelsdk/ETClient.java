@@ -435,7 +435,7 @@ public class ETClient {
                                                           ETFilter filter)
         throws ETSdkException
     {
-        return retrieve(type, page, pageSize, filter, null);
+        return retrieve(type, page, pageSize, null, filter);
     }
 
     /**
@@ -444,16 +444,16 @@ public class ETClient {
      * @param type          The class type to retrieve
      * @param page          The page number
      * @param pageSize      The page size
-     * @param filter        The ETFilter object to be used to retrieve objects
      * @param continueRequest Identifier of the request
+     * @param filter        The ETFilter object to be used to retrieve objects
      * @return              The ETResponse of type T which extends from ETApiObject
      */
     @SuppressWarnings("unchecked")
     public <T extends ETApiObject> ETResponse<T> retrieve(Class<T> type,
                                                           Integer page,
                                                           Integer pageSize,
-                                                          ETFilter filter,
-                                                          String continueRequest)
+                                                          String continueRequest,
+                                                          ETFilter filter)
         throws ETSdkException
     {
         //
@@ -468,8 +468,8 @@ public class ETClient {
                                                Class.class,     // type
                                                Integer.class,   // page
                                                Integer.class,   // pageSize
-                                               ETFilter.class,  // filter
-                                               String.class);   // continueRequest
+                                               String.class,    // continueRequest
+                                               ETFilter.class); // filter
                 if (retrieve != null) {
                     break;
                 }
@@ -490,8 +490,8 @@ public class ETClient {
                                                        type,
                                                        page,
                                                        pageSize,
-                                                       filter,
-                                                       continueRequest);
+                                                       continueRequest,
+                                                       filter);
         } catch (Exception ex) {
             throw new ETSdkException("error invoking retrieve method for type " + type, ex);
         }

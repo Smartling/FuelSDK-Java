@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import static com.exacttarget.fuelsdk.ETResult.Status.ERROR;
 import static com.exacttarget.fuelsdk.ETResult.Status.OK;
+import static com.exacttarget.fuelsdk.ETSoapObject.MORE_DATA_AVAILABLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -24,14 +25,15 @@ public class ETDataExtensionIntegrationTest {
     private static final String TARGET_LOCALE = "de-DE";
     private static final String LANGUAGE_COLUMN_NAME = "User_Language__c";
 
-    private SimpleDateFormat formatter = new SimpleDateFormat("M/dd/yyyy h:mm:ss a");
+    private final SimpleDateFormat formatter = new SimpleDateFormat("M/dd/yyyy h:mm:ss a");
 
     private ETClient client;
 
     @Before
     public void setup() throws Exception {
-        String clientId = System.getProperty("sfmc.username");
-        String clientSecret = System.getProperty("sfmc.password");
+        String clientId = System.getProperty("sfmc.clientId");
+        String clientSecret = System.getProperty("sfmc.clientSecret");
+        String munchkin = System.getProperty("sfmc.munchkin");
 
         assumeNotNull("Username is not specified", clientId);
         assumeNotNull("Password is not specified", clientSecret);
@@ -39,6 +41,8 @@ public class ETDataExtensionIntegrationTest {
         ETConfiguration configuration = new ETConfiguration();
         configuration.set("clientId", clientId);
         configuration.set("clientSecret", clientSecret);
+        configuration.set("endpoint", "https://" + munchkin + ".rest.marketingcloudapis.com/");
+        configuration.set("authEndpoint", "https://" + munchkin + ".auth.marketingcloudapis.com/");
 
         // instantiate ETClient object
         client = new ETClient(configuration);
@@ -51,6 +55,19 @@ public class ETDataExtensionIntegrationTest {
         List<ETDataExtension> dataExtensions = client.retrieveObjects(ETDataExtension.class, etFilter);
         for (ETDataExtension etDataExtension: dataExtensions)
             client.delete(etDataExtension);
+    }
+
+    @Test
+    public void shouldLoadDataExtensionsWithPagination() throws Exception
+    {
+        ETResponse<ETDataExtension> firstPage = client.retrieve(ETDataExtension.class, null, 5, new ETFilter());
+
+        assertEquals(5, firstPage.getObjects().size());
+        assertEquals(MORE_DATA_AVAILABLE, firstPage.getResponseCode());
+        assertTrue(firstPage.hasMoreResults());
+
+        ETResponse<ETDataExtension> nextPage = client.retrieve(ETDataExtension.class, null, 6, firstPage.getRequestId(), new ETFilter());
+        assertEquals(6, nextPage.getObjects().size());
     }
 
     @Test
