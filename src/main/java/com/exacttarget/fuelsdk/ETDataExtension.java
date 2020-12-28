@@ -47,8 +47,6 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -65,7 +63,6 @@ import java.util.List;
     "ID", "Fields"
 })
 public class ETDataExtension extends ETSoapObject {
-	static final int DEFAULT_PAGE_SIZE = 2500;
     private static Logger logger = Logger.getLogger(ETDataExtension.class);
 
     @ExternalName("id")
@@ -438,6 +435,27 @@ public class ETDataExtension extends ETSoapObject {
                                                         ETFilter filter)
         throws ETSdkException
     {
+        return select(client, dataExtension, page, pageSize, null, filter);
+    }
+
+    /**
+     *
+     * @param client        The ETClient object
+     * @param dataExtension The data extension
+     * @param page          The page number
+     * @param pageSize      The page size
+     * @param filter        The ETFilter to be used to select rows
+     * @return              The ETResponse of ETDataExtensionRow
+     * @throws ETSdkException
+     */
+    public static ETResponse<ETDataExtensionRow> select(ETClient client,
+                                                        String dataExtension,
+                                                        Integer page,
+                                                        Integer pageSize,
+                                                        String continueRequest,
+                                                        ETFilter filter)
+        throws ETSdkException
+    {
         String name = null;
 
         //
@@ -473,128 +491,12 @@ public class ETDataExtension extends ETSoapObject {
                 ETSoapObject.retrieve(client,
                                       "DataExtensionObject[" + name + "]",
                                       filter,
+                                      pageSize,
+                                      continueRequest,
                                       ETDataExtensionRow.class);
-        
-        List<ETResult<ETDataExtensionRow>> rowSet = sortRowSet(response.getResults(), filter);
-        
-        List<ETResult<ETDataExtensionRow>> paginatedRowSet;
-           if (page == null) {
-              page = response.getPage();
-               if (page == null) {
-                 page = 1;
-             }
-         }
-         int iPage = page;
-         if (pageSize == null) {
-             pageSize = response.getPageSize();
-             if (pageSize == null) {
-                 pageSize = DEFAULT_PAGE_SIZE;
-             }
-         }
-         int iPageSize = pageSize;
-         int pageStart = (iPage - 1) * iPageSize;
-         int pageEnd = pageStart + iPageSize;
-         if (pageStart < rowSet.size()) {
-             if (pageEnd > rowSet.size()) {
-                 pageEnd = rowSet.size();
-             }
-         } else {
-             pageEnd = pageStart;
-         }
-         paginatedRowSet = rowSet.subList(pageStart, pageEnd);
-         response = createResponse(response, paginatedRowSet, page, pageSize, pageEnd, rowSet.size());
-         logger.debug("final response: " + response);
-
-        //
-        // XXX reenable support for paginated retrieves via REST API
-        //
-
-//        String json = restResponse.getPayload();
-//
-//        JsonParser jsonParser = new JsonParser();
-//        JsonObject jsonObject = jsonParser.parse(json).getAsJsonObject();
-//
-//        if (jsonObject.get("page") != null) {
-//            response.setPage(jsonObject.get("page").getAsInt());
-//            logger.trace("page = " + response.getPage());
-//            response.setPageSize(jsonObject.get("pageSize").getAsInt());
-//            logger.trace("pageSize = " + response.getPageSize());
-//            response.setTotalCount(jsonObject.get("count").getAsInt());
-//            logger.trace("totalCount = " + response.getTotalCount());
-//
-//            if (response.getPage() * response.getPageSize() < response.getTotalCount()) {
-//                response.setMoreResults(true);
-//            }
-//
-//            JsonElement elements = jsonObject.get("items");
-//            if (elements != null) {
-//                for (JsonElement element : elements.getAsJsonArray()) {
-//                    JsonObject object = element.getAsJsonObject();
-//                    ETDataExtensionRow row = new ETDataExtensionRow();
-//                    JsonObject keys = object.get("keys").getAsJsonObject();
-//                    for (Map.Entry<String, JsonElement> entry : keys.entrySet()) {
-//                        row.setColumn(entry.getKey(), entry.getValue().getAsString(), false);
-//                    }
-//                    JsonObject values = object.get("values").getAsJsonObject();
-//                    for (Map.Entry<String, JsonElement> entry : values.entrySet()) {
-//                        row.setColumn(entry.getKey(), entry.getValue().getAsString(), false);
-//                    }
-//                    row.setClient(client);
-//                    ETResult<ETDataExtensionRow> result = new ETResult<ETDataExtensionRow>();
-//                    result.setObject(row);
-//                    response.addResult(result);
-//                }
-//            }
-//        }
-
         return response;
     }
-    private static List<ETResult<ETDataExtensionRow>> sortRowSet(List<ETResult<ETDataExtensionRow>> rowSet, ETFilter filter) throws ETSdkException {
-        logger.debug("rowSet: " + rowSet);
-        logger.debug("filter: " + filter);
-        if (filter.getOrderBy() != null && filter.getOrderBy().size() > 0) {
-            // Sort the results
-            final String orderByColumn = filter.getOrderBy().get(0).toLowerCase();
-            List<String> list = filter.getProperties();
-            if (list.contains(orderByColumn)) {
-                final boolean sortAsc = filter.getOrderByAsc();
-                List<ETResult<ETDataExtensionRow>> sortedRowSet = rowSet;
-                Collections.sort(sortedRowSet, new Comparator<ETResult<ETDataExtensionRow>>() {
-                    public int compare(ETResult<ETDataExtensionRow> o1, ETResult<ETDataExtensionRow> o2) {
-                        if (o1.getObject().getColumn(orderByColumn) == null) {
-                            return 0;
-                        }
-                        int result = o1.getObject().getColumn(orderByColumn).compareTo(o2.getObject().getColumn(orderByColumn));
-                        return (sortAsc ? result : -result);
-                    }
-                });
-                rowSet = sortedRowSet;
-                logger.debug("sortedRowSet: " + sortedRowSet);
-            } else {
-                throw new ETSdkException("Can't order by '" + orderByColumn + "' as it is not in selected columns list: "
-                        + list);
-            }
-        }
-        return rowSet;
-    }
 
-    private static ETResponse<ETDataExtensionRow> createResponse(ETResponse<ETDataExtensionRow> response,
-                                                                 List<ETResult<ETDataExtensionRow>> paginatedRowSet,
-                                                                 Integer page, Integer pageSize, Integer pageEnd,
-                                                                 Integer totalCount) {
-        ETResponse<ETDataExtensionRow> pr = new ETResponse<ETDataExtensionRow>();
-        pr.setResponseCode(response.getResponseCode());
-        pr.setResponseMessage(response.getResponseMessage());
-        pr.setStatus(response.getStatus());
-        pr.setPage(page);
-        pr.setPageSize(pageSize);
-        pr.setTotalCount(totalCount);
-        pr.setMoreResults((pageEnd < totalCount));
-        pr.setRequestId(response.getRequestId());
-        pr.getResults().addAll(paginatedRowSet);
-        return pr;
-    }
-    
     /**
      *
      * @param client        The ETClient object
