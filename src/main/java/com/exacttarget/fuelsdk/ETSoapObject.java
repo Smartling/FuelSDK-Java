@@ -64,6 +64,7 @@ import com.exacttarget.fuelsdk.internal.ListClassificationEnum;
 import com.exacttarget.fuelsdk.internal.ListTypeEnum;
 import com.exacttarget.fuelsdk.internal.LogicalOperators;
 import com.exacttarget.fuelsdk.internal.ObjectExtension;
+import com.exacttarget.fuelsdk.internal.RetrieveOptions;
 import com.exacttarget.fuelsdk.internal.RetrieveRequest;
 import com.exacttarget.fuelsdk.internal.RetrieveRequestMsg;
 import com.exacttarget.fuelsdk.internal.RetrieveResponseMsg;
@@ -103,8 +104,9 @@ import java.util.Map;
  */
 
 public abstract class ETSoapObject extends ETApiObject {
-    private static Logger logger = Logger.getLogger(ETSoapObject.class);
+    private static final Logger logger = Logger.getLogger(ETSoapObject.class);
 
+    public static final String MORE_DATA_AVAILABLE = "MoreDataAvailable";
     /**
      * The page size
      */
@@ -135,18 +137,37 @@ public abstract class ETSoapObject extends ETApiObject {
                                                                   ETFilter filter)
         throws ETSdkException
     {
+        return retrieve(client, type, page, pageSize, null, filter);
+    }
+
+    /**
+     *
+     * @param <T>           The type which extends from ETSoapObject
+     * @param client        The ETClient object
+     * @param type          The class type to retrieve
+     * @param page          The page number
+     * @param pageSize      The page size
+     * @param filter        The ETFilter object
+     * @return              The ETResponse object of type T which extends from ETSoapObject
+     * @throws ETSdkException
+     */
+    public static <T extends ETSoapObject> ETResponse<T> retrieve(ETClient client,
+                                                                  Class<T> type,
+                                                                  Integer page,
+                                                                  Integer pageSize,
+                                                                  String continueRequest,
+                                                                  ETFilter filter)
+        throws ETSdkException
+    {
         if (page != null) {
             throw new ETSdkException("page argument not supported on this object type");
-        }
-        if (pageSize != null) {
-            throw new ETSdkException("pageSize argument not supported on this object type");
         }
 
         if (filter.getOrderBy().size() != 0) {
             throw new ETSdkException("order by argument not supported on this object type");
         }
 
-        return retrieve(client, null, filter, type);
+        return retrieve(client, null, filter, pageSize, continueRequest, type);
     }
 
     /**
@@ -170,7 +191,7 @@ public abstract class ETSoapObject extends ETApiObject {
                                                                      Class<T> type)
         throws ETSdkException
     {
-        return retrieve(client, soapObjectName, filter, null, type);
+        return retrieve(client, soapObjectName, filter, null, null, type);
     }
 
     /**
@@ -187,7 +208,7 @@ public abstract class ETSoapObject extends ETApiObject {
                                                                      Class<T> type)
         throws ETSdkException
     {
-        return retrieve(client, null, new ETFilter(), continueRequest, type);
+        return retrieve(client, null, new ETFilter(), null, continueRequest, type);
     }
 
     /**
@@ -196,6 +217,7 @@ public abstract class ETSoapObject extends ETApiObject {
      * @param client        The ETClient object
      * @param soapObjectName The object name to retrieve for SOAP
      * @param filter        The ETFilter object
+     * @param pageSize      The page size
      * @param continueRequest The continue request
      * @param type          The class type to retrieve
      * @return              The ETResponse object of type T which extends from ETSoapObject
@@ -204,12 +226,11 @@ public abstract class ETSoapObject extends ETApiObject {
     protected static <T extends ETSoapObject> ETResponse<T> retrieve(ETClient client,
                                                                      String soapObjectName,
                                                                      ETFilter filter,
+                                                                     Integer pageSize,
                                                                      String continueRequest,
                                                                      Class<T> type)
         throws ETSdkException
     {
-        ETResponse<T> response = new ETResponse<T>();
-
         //
         // Get handle to the SOAP connection:
         //
@@ -303,9 +324,14 @@ public abstract class ETSoapObject extends ETApiObject {
                 retrieveRequest.setFilter(toFilterPart(expression));
             }
         } else {
-            if (continueRequest != null) {
-                retrieveRequest.setContinueRequest(continueRequest);
-            }
+            retrieveRequest.setContinueRequest(continueRequest);
+        }
+
+        if (pageSize != null)
+        {
+            RetrieveOptions options = new RetrieveOptions();
+            options.setBatchSize(pageSize);
+            retrieveRequest.setOptions(options);
         }
 
         if (logger.isTraceEnabled()) {
@@ -331,6 +357,12 @@ public abstract class ETSoapObject extends ETApiObject {
             if (filter != null) {
                 logger.trace("  filter = " + toFilterPart(expression));
             }
+            if (pageSize != null) {
+                logger.trace("  pageSize = " + pageSize);
+            }
+            if (continueRequest != null) {
+                logger.trace("  continueRequest = " + continueRequest);
+            }
         }
 
         logger.trace("calling soap.retrieve...");
@@ -351,6 +383,7 @@ public abstract class ETSoapObject extends ETApiObject {
             logger.trace("  }");
         }
 
+        ETResponse<T> response = new ETResponse<T>();
         response.setRequestId(retrieveResponseMsg.getRequestID());
         if (retrieveResponseMsg.getOverallStatus().equals("OK")) {
             response.setStatus(ETResult.Status.OK);
@@ -389,10 +422,9 @@ public abstract class ETSoapObject extends ETApiObject {
             response.addResult(result);
         }
 
-        if (retrieveResponseMsg.getOverallStatus().equals("MoreDataAvailable")) {
-            response.addResults(retrieve(client, null, new ETFilter(), retrieveResponseMsg.getRequestID(), type).getResults());
+        if (MORE_DATA_AVAILABLE.equals(retrieveResponseMsg.getOverallStatus())) {
+            response.setMoreResults(true);
         }
-
         return response;
     }
 
