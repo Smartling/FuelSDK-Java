@@ -257,20 +257,10 @@ public class ETFolder extends ETSoapObject {
         setKey(customerKey);
     }
 
-    /**
-     * @deprecated
-     * Use <code>getParentFolderKey()</code>.
-     */
-    @Deprecated
     public ETFolder getParentFolder() {
         return parentFolder;
     }
 
-    /**
-     * @deprecated
-     * Use <code>setParentFolderKey()</code>.
-     */
-    @Deprecated
     public void setParentFolder(ETFolder parentFolder) {
         this.parentFolder = parentFolder;
     }
