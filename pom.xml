@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.smartling.connector</groupId>
   <artifactId>exacttarget-fuelsdk</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.1-SNAPSHOT</version>
   <name>Salesforce Marketing Cloud Java SDK</name>
   <description>Salesforce Marketing Cloud Java SDK</description>
   <url>https://github.com/salesforce-marketingcloud/FuelSDK-Java</url>
