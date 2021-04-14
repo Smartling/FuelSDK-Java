@@ -146,7 +146,7 @@
             <exclude>fuelsdk.properties</exclude>
             <exclude>fuelsdk.properties.template</exclude>
             <exclude>fuelsdk-test.properties</exclude>
-            <exclude>log4j.properties</exclude>
+            <exclude>logback.xml</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -159,7 +159,7 @@
             <exclude>fuelsdk.properties</exclude>
             <exclude>fuelsdk.properties.template</exclude>
             <exclude>fuelsdk-test.properties</exclude>
-            <exclude>log4j.properties</exclude>
+            <exclude>logback.xml</exclude>
           </excludes>
         </configuration>
         <executions>

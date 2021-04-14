@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="pattern" value="%date{'yyyy-MM-dd HH:mm:ss,SSS Z'} %level %logger %msg%n"/>
+
+    <appender name="SOAP" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>soap.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>soap.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>1</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Dumping all requests and responses -->
+    <logger name="org.apache.cxf.services.PartnerAPI.Soap.Soap" level="INFO" additivity="false">
+        <appender-ref ref="SOAP"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
