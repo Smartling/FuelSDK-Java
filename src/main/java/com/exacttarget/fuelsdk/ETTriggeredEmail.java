@@ -47,7 +47,8 @@ import com.exacttarget.fuelsdk.internal.Soap;
 import com.exacttarget.fuelsdk.internal.Subscriber;
 import com.exacttarget.fuelsdk.internal.TriggeredSend;
 import com.exacttarget.fuelsdk.internal.TriggeredSendDefinition;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,7 +71,7 @@ import java.util.List;
     "SendSourceDataExtension"
 })
 public class ETTriggeredEmail extends ETSoapObject {
-    private static Logger logger = Logger.getLogger(ETTriggeredEmail.class);
+    private static final Logger logger = LoggerFactory.getLogger(ETTriggeredEmail.class);
 
     @ExternalName("id")
     @InternalName("objectID")

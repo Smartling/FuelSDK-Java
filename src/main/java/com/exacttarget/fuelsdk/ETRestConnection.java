@@ -34,6 +34,11 @@
 
 package com.exacttarget.fuelsdk;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,14 +49,6 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonParser;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import org.apache.commons.lang.StringUtils;
-
-import org.apache.log4j.Logger;
 
 /**
  * An <code>ETRestConnection</code> represents an active
@@ -59,7 +56,7 @@ import org.apache.log4j.Logger;
  */
 
 public class ETRestConnection {
-    private static Logger logger = Logger.getLogger(ETRestConnection.class);
+    private static final Logger logger = LoggerFactory.getLogger(ETRestConnection.class);
 
     private ETClient client = null;
 

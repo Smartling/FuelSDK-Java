@@ -86,7 +86,8 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
@@ -104,7 +105,7 @@ import java.util.Map;
  */
 
 public abstract class ETSoapObject extends ETApiObject {
-    private static final Logger logger = Logger.getLogger(ETSoapObject.class);
+    private static final Logger logger = LoggerFactory.getLogger(ETSoapObject.class);
 
     public static final String MORE_DATA_AVAILABLE = "MoreDataAvailable";
     /**

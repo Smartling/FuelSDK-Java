@@ -43,7 +43,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -60,7 +61,7 @@ import static com.exacttarget.fuelsdk.ETRestConnection.Method.POST;
  */
 
 public abstract class ETRestObject extends ETApiObject {
-    private static Logger logger = Logger.getLogger(ETRestObject.class);
+    private static final Logger logger = LoggerFactory.getLogger(ETRestObject.class);
 
     /**
      * 

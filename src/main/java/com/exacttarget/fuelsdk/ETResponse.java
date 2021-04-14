@@ -36,15 +36,16 @@ package com.exacttarget.fuelsdk;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Logger;
 import com.exacttarget.fuelsdk.annotations.PrettyPrint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An <code>ETResponse</code> object represents response from SOAP/REST call
  * in the Salesforce Marketing Cloud.
  */
 public class ETResponse<T extends ETApiObject> extends ETObject {
-    private static Logger logger = Logger.getLogger(ETResponse.class);
+    private static final Logger logger = LoggerFactory.getLogger(ETResponse.class);
 
     @PrettyPrint
     private ETResult<T> batchResult = null;

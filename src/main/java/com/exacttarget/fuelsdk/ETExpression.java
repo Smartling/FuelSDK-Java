@@ -38,16 +38,16 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import com.exacttarget.fuelsdk.annotations.PrettyPrint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An <code>ETExpression</code> object represents an expression using property/value
  * in the Salesforce Marketing Cloud.
  */
 public class ETExpression extends ETObject {
-    private static Logger logger = Logger.getLogger(ETExpression.class);
+    private static final Logger logger = LoggerFactory.getLogger(ETExpression.class);
 
     /**
      *  Operator that can be used on ETExpression
