@@ -34,12 +34,13 @@
 
 package com.exacttarget.fuelsdk;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.log4j.Logger;
 
 /**
  * An <code>ETApiObject</code> represents an object available via
@@ -58,7 +59,7 @@ import org.apache.log4j.Logger;
  */
 
 public abstract class ETApiObject extends ETObject {
-    private static Logger logger = Logger.getLogger(ETApiObject.class);
+    private static final Logger logger = LoggerFactory.getLogger(ETApiObject.class);
 
     private Map<String, Boolean> isModified = new HashMap<String, Boolean>();
 

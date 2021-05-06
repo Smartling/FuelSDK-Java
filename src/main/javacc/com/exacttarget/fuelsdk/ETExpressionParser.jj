@@ -40,10 +40,11 @@ options
 PARSER_BEGIN(ETExpressionParser)
 package com.exacttarget.fuelsdk;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ETExpressionParser {
-    private static Logger logger = Logger.getLogger(ETExpressionParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(ETExpressionParser.class);
 }
 PARSER_END(ETExpressionParser)
 

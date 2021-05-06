@@ -39,9 +39,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -58,7 +59,7 @@ import java.util.List;
 
 public class ETClient {
     public static final int HTTP_OK = 200;
-    private static Logger logger = Logger.getLogger(ETClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(ETClient.class);
 
     private static final String DEFAULT_PROPERTIES_FILE_NAME =
             "/fuelsdk.properties";

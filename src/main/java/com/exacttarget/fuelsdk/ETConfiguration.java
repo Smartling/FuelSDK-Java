@@ -34,7 +34,9 @@
 
 package com.exacttarget.fuelsdk;
 
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,7 +46,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class ETConfiguration {
-    private static Logger logger = Logger.getLogger(ETConfiguration.class);
+    private static final Logger logger = LoggerFactory.getLogger(ETConfiguration.class);
 
     private Properties properties = new Properties();
 

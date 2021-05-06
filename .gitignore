@@ -19,3 +19,6 @@ target/
 /bin/
 /nbproject/
 docs/
+.run
+
+soap.log
